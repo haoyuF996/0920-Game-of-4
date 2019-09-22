@@ -216,7 +216,7 @@ from pygame.locals import *
 from sys import exit
 import time
 import random
-SIZE = (4,4)
+SIZE = (8,8)
 Init()
 M=(0,0)
 Won = True
