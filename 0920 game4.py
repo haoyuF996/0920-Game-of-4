@@ -96,15 +96,22 @@ def CheckWinL(List):
 def CheckWin(Borad,loc):
     '''
     Check the values in Borad around loc\n
-    return R for red win, B for blue win, False for not win
+    return R for red win, B for blue win, D for Draw,\n
+    False for not win
     '''
     l,r = GetDiagonal(loc,Borad,'l'),GetDiagonal(loc,Borad,'r')
     x,y = GetLine(loc,Borad,'x'),GetLine(loc,Borad,'y')
     win_list = [CheckWinL(l),CheckWinL(r),CheckWinL(x),CheckWinL(y)]
+    Draw = True
+    for pos in Borad:
+        if Borad[pos]==0:
+            Draw = False
     if 'B' in win_list:
         return 'B'
     elif 'R' in win_list:
         return 'R'
+    elif Draw:
+        return 'D'
     else:
         return False
 def GetMouse(Borad):
@@ -125,7 +132,10 @@ def ShowWin(winner):
     Show who wins
     '''
     global screen,player,Won
-    surface = font.render('WIN',True,winner)
+    if winner == 'D':
+        surface = font.render('Draw',True,(0,0,0))
+    else:
+        surface = font.render('WIN',True,winner)
     size = surface.get_width(),surface.get_height()
     pygame.draw.rect(screen, (255,255,255), Rect((SIZE[0]*15,10), size))
     screen.blit(surface,(SIZE[0]*15,10))
@@ -192,12 +202,13 @@ class Drop():
         global player,loc
         if time.time()-self.t0 >= 0.2:
             lower_pos = (self.start,self.pos+1)
-            if lower_pos in Borad and Borad[lower_pos]==0:
+            if lower_pos in Borad and Borad[lower_pos]<=0:
                 Borad[(self.start,self.pos)] = 0
                 self.pos+=1
                 Borad[(self.start,self.pos)] = self.play
                 self.t0 = time.time()
-            elif not lower_pos in Borad or Borad[lower_pos]!=0:
+            elif not lower_pos in Borad or Borad[lower_pos]>0:
+                Borad[(self.start,self.pos)] = self.play
                 player = self.play*(self.play-2)**2+1
                 loc = (self.start,self.pos)
 import pygame
@@ -205,7 +216,7 @@ from pygame.locals import *
 from sys import exit
 import time
 import random
-SIZE = (12,12)
+SIZE = (4,4)
 Init()
 M=(0,0)
 Won = True
@@ -246,5 +257,7 @@ while True:
             ShowWin((255,0,0))
         elif a=='B':
             ShowWin((0,0,255))
+        elif a=='D':
+            ShowWin('D')
     pygame.display.update()
     #刷新一下画面
