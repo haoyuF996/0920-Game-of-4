@@ -48,7 +48,6 @@ def GetDiagonal(Coordinate,Borad,Direct):
     for i in range(7):
         if (Xs[i],Ys[i]) in Borad:
             List.append(Borad[(Xs[i],Ys[i])])
-    countr,countb = [0],[0]
     return List
 def GetLine(Coordinate,Borad,Direct):
     '''
@@ -235,7 +234,8 @@ while True:
             player = False
             #点击空位后开始下落棋子
     if not player and Anime:
-        Anime.down()#演示下落动画
+        Anime.down()
+        #演示下落动画
     ShoeState()#展示回合状态
     screen = DisplyBorad(Borad)
     if player and loc:
