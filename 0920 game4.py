@@ -132,6 +132,7 @@ def ShowWin(winner):
     Show who wins
     '''
     global screen,player,Won
+    font = pygame.font.SysFont('times',68)
     if winner == 'D':
         surface = font.render('Draw',True,(0,0,0))
     else:
@@ -201,26 +202,57 @@ class Drop():
         global Borad
         global player,loc
         if time.time()-self.t0 >= 0.2:
+            #每0.2s进行一次下落判定
             lower_pos = (self.start,self.pos+1)
             if lower_pos in Borad and Borad[lower_pos]<=0:
+                #可以继续下落
                 Borad[(self.start,self.pos)] = 0
+                #清空当前位置
                 self.pos+=1
                 Borad[(self.start,self.pos)] = self.play
+                #进入下方位置
                 self.t0 = time.time()
             elif not lower_pos in Borad or Borad[lower_pos]>0:
+                #无法继续下落则结束下落
                 Borad[(self.start,self.pos)] = self.play
                 player = self.play*(self.play-2)**2+1
                 loc = (self.start,self.pos)
+class FPS():
+    def __init__(self,t0,count,fps):
+        self.t0 = t0
+        self.count = count
+        self.fps = fps
+    def display(self,dis):
+        global screen
+        font = pygame.font.SysFont('times',15)
+        surface = font.render(f'FPS:{self.fps}',True,(0,0,0))
+        size = surface.get_width(),surface.get_height()
+        t = time.time()
+        pygame.draw.rect(screen, (255,255,255), Rect((0,0), size))
+        self.count+=1
+        #计数器每次加一，用于计算两次更新之间的帧数
+        if dis and t-self.t0>=0.1:
+            #每0.1s更新一次fps
+            self.fps = int(self.count/(t-self.t0))
+            self.t0 = time.time()
+            self.count = 0
+            screen.blit(surface,(0,0))
+        elif dis and t-self.t0<0.1:
+            #不更新时仍然显示
+            screen.blit(surface,(0,0))
 import pygame
 from pygame.locals import *
 from sys import exit
 import time
 import random
-SIZE = (8,8)
+SIZE = eval(input('Borad size:'))
 Init()
 M=(0,0)
 Won = True
 pygame.init()
+pygame.display.set_caption('Game of 4')
+fps = FPS(time.time(),time.time(),0)
+fps_display = [False,True] 
 while True:
 #游戏主循环
     Start()
@@ -244,6 +276,9 @@ while True:
             Anime = Drop(M[0],0,time.time(),player)
             player = False
             #点击空位后开始下落棋子
+        if event.type == KEYDOWN and event.key == K_DOWN:
+            fps_display.reverse()
+            #点下键后显示/隐藏fps
     if not player and Anime:
         Anime.down()
         #演示下落动画
@@ -252,12 +287,12 @@ while True:
     if player and loc:
         #胜利判定
         a = CheckWin(Borad,loc)
-        font = pygame.font.SysFont('times',68)
         if a=='R':
             ShowWin((255,0,0))
         elif a=='B':
             ShowWin((0,0,255))
         elif a=='D':
             ShowWin('D')
+    fps.display(fps_display[0])
     pygame.display.update()
     #刷新一下画面
