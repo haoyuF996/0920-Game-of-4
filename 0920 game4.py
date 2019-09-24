@@ -16,19 +16,20 @@ def DisplyBorad(Borad):
     0 for empty, 1 for red, 2 for blue\n
     '''
     global screen
-    color = (255,215,0)
+    color = (128,138,135)
     size,pos = (SIZE[0]*50+50, SIZE[1]*50+50),(0,100)
     pygame.draw.rect(screen, color, Rect(pos, size))
+    pygame.draw.rect(screen, (128,138,135), Rect(pos, size),3)
     for point in Borad:
-        c = (128,138,135)
+        c = (255,255,224)
         if Borad[point]==1:
-            c = (200,25,45)
+            c = (255,127,0)
         elif Borad[point]==2:
-            c = (25,25,112)
+            c = (0,0,205)
         elif Borad[point]==-1:
-            c = (200,25,45)
+            c = (255,151,0)
         elif Borad[point]==-2:
-            c = (25,25,112)
+            c = (0,0,230)
         p = ((point[0]+1)*50,(point[1]+1)*50+100)
         pygame.draw.circle(screen, c, p, 20)
     return screen
@@ -132,13 +133,13 @@ def ShowWin(winner):
     Show who wins
     '''
     global screen,player,Won
-    font = pygame.font.SysFont('times',68)
+    font = pygame.font.SysFont('impact',68)
     if winner == 'D':
-        surface = font.render('Draw',True,(0,0,0))
+        surface = font.render('Draw',True,(255,255,224))
     else:
         surface = font.render('WIN',True,winner)
     size = surface.get_width(),surface.get_height()
-    pygame.draw.rect(screen, (255,255,255), Rect((SIZE[0]*15,10), size))
+    pygame.draw.rect(screen, (0,0,0), Rect((SIZE[0]*15,10), size))
     screen.blit(surface,(SIZE[0]*15,10))
     player = False
     Won = True
@@ -147,15 +148,15 @@ def ShoeState():
     Show the state of movement
     '''
     global screen,player
-    font = pygame.font.SysFont('times',50)
+    font = pygame.font.SysFont('impact',50)
     if player == 1:
-        k = font.render('Move',True,(255,0,0))
+        k = font.render('Move',True,(255,165,0))
     elif player == 2:
-        k = font.render('Move',True,(0,0,255))
+        k = font.render('Move',True,(72,118,255))
     else:
-        k = font.render('Wait',True,(0,0,0))
+        k = font.render('Wait',True,(255,255,224))
     size = k.get_width(),k.get_height()
-    pygame.draw.rect(screen, (255,255,255), Rect((SIZE[0]*15,30), size))
+    pygame.draw.rect(screen, (0,0,0), Rect((SIZE[0]*15,30), size))
     screen.blit(k,(SIZE[0]*15,30))
 def Init():
     '''
@@ -165,7 +166,7 @@ def Init():
     loc = False
     Borad = InitialiseBorad(SIZE)
     screen = pygame.display.set_mode((SIZE[0]*50+50, SIZE[1]*50+150), 0, 32)
-    screen.fill((255,255,255))
+    screen.fill((0,0,0))
     player = 0
     Anime = 0
 def Start():
@@ -175,23 +176,24 @@ def Start():
     global Won
     global OnS
     global screen
-    pygame.draw.rect(screen, (255,255,255), Rect((0,0),(450,100)))
+    pygame.draw.rect(screen, (0,0,0), Rect((0,0),(450,100)))
     if Won:
         x, y = pygame.mouse.get_pos()
-        font = pygame.font.SysFont('times',30)
+        font = pygame.font.Font('American Typewriter Medium BT.ttf', 20)
         k = font.render('START',True,(0,0,0))
         sx,sy = k.get_width(),k.get_height()
         size = (sx+10,sy)
-        pos = (SIZE[0]*50-55,10)
-        if 0<=x-(SIZE[0]*50-50)<=sx and 0<=y-10<=sy:
-            color = (135,206,235)
+        xGap,yGap = 10,20
+        pos = (SIZE[0]*50+40-sx-xGap,yGap)
+        if 0<=x-(SIZE[0]*50+40-sx-xGap)<=sx and 0<=y-yGap<=sy:
+            color = (238,238,0)
             OnS = True
         else:
-            color = (176,224,230)
+            color = (255,255,0)
             OnS = False
         pygame.draw.rect(screen, color, Rect(pos, size))
-        pygame.draw.rect(screen, (0,0,0), Rect(pos, size),3)
-        screen.blit(k,(SIZE[0]*50-50,10))
+        pygame.draw.rect(screen, (255,255,224), Rect(pos, size),2)
+        screen.blit(k,(SIZE[0]*50+45-sx-xGap,yGap))
 class Drop():
     def __init__(self,start,pos,t0,play):
         self.start = start
@@ -224,11 +226,11 @@ class FPS():
         self.fps = fps
     def display(self,dis):
         global screen
-        font = pygame.font.SysFont('times',15)
-        surface = font.render(f'FPS:{self.fps}',True,(0,0,0))
+        font = pygame.font.Font('American Typewriter Medium BT.ttf', 10)
+        surface = font.render(f'FPS:{self.fps}',True,(255,255,255))
         size = surface.get_width(),surface.get_height()
         t = time.time()
-        pygame.draw.rect(screen, (255,255,255), Rect((0,0), size))
+        pygame.draw.rect(screen, (0,0,0), Rect((0,0), size))
         self.count+=1
         #计数器每次加一，用于计算两次更新之间的帧数
         if dis and t-self.t0>=0.1:
@@ -288,9 +290,9 @@ while True:
         #胜利判定
         a = CheckWin(Borad,loc)
         if a=='R':
-            ShowWin((255,0,0))
+            ShowWin((255,165,0))
         elif a=='B':
-            ShowWin((0,0,255))
+            ShowWin((72,118,255))
         elif a=='D':
             ShowWin('D')
     fps.display(fps_display[0])
