@@ -16,22 +16,34 @@ def DisplyBorad(Borad):
     0 for empty, 1 for red, 2 for blue\n
     '''
     global screen
-    color = (128,138,135)
+    color = (238,221,130)
+    List = [(3,3),(3,11),(11,3),(11,11)]
     size,pos = (SIZE[0]*50+50, SIZE[1]*50+50),(0,100)
     pygame.draw.rect(screen, color, Rect(pos, size))
-    pygame.draw.rect(screen, (128,138,135), Rect(pos, size),3)
+    for i in range(1,SIZE[0]+1):
+        pygame.draw.rect(screen, (0,0,0), Rect((i*50-1,150), (2,SIZE[1]*50-50)))
+
+    for i in range(1,SIZE[1]+1):
+        pygame.draw.rect(screen, (0,0,0), Rect((50,i*50-1+100), (SIZE[1]*50-50,2)))
+    for i in List:
+        p = ((i[0]+1)*50,(i[1]+1)*50+100)
+        pygame.draw.circle(screen, (0,0,0), p, 6)
     for point in Borad:
-        c = (255,255,224)
-        if Borad[point]==1:
-            c = (255,127,0)
-        elif Borad[point]==2:
-            c = (0,0,205)
-        elif Borad[point]==-1:
-            c = (255,151,0)
-        elif Borad[point]==-2:
-            c = (0,0,230)
         p = ((point[0]+1)*50,(point[1]+1)*50+100)
-        pygame.draw.circle(screen, c, p, 20)
+        if Borad[point]==0:
+            continue
+            #c = (0,0,0)
+            #pygame.draw.circle(screen, c, p, 4)
+        else:
+            if Borad[point]==1:
+                c = (255,255,224)
+            elif Borad[point]==2:
+                c = (0,0,0)
+            elif Borad[point]==-1:
+                c = (255,255,224)
+            elif Borad[point]==-2:
+                c = (0,0,0)
+            pygame.draw.circle(screen, c, p, 20)
     return screen
 def GetDiagonal(Coordinate,Borad,Direct):
     '''
@@ -140,6 +152,7 @@ def ShowWin(winner):
     else:
         surface = font.render('WIN',True,winner)
     size = surface.get_width(),surface.get_height()
+    pygame.draw.rect(screen, (0,0,0), Rect((SIZE[0]*15,30), Ssize))
     pygame.draw.rect(screen, (0,0,0), Rect((SIZE[0]*15,10), size))
     screen.blit(surface,(SIZE[0]*15,10))
     Won = True
@@ -147,29 +160,32 @@ def ShoeState():
     '''
     Show the state of movement
     '''
-    global screen,player
+    global screen,player,Ssize
     font = pygame.font.SysFont('impact',50)
     if player == 1:
-        k = font.render('Move',True,(255,165,0))
+        k = font.render('White Move',True,(255,165,0))
     elif player == 2:
-        k = font.render('Move',True,(72,118,255))
+        k = font.render('Black Move',True,(72,118,255))
     else:
         k = font.render('Wait',True,(255,255,224))
-    size = k.get_width(),k.get_height()
-    pygame.draw.rect(screen, (0,0,0), Rect((SIZE[0]*15,30), size))
+    pygame.draw.rect(screen, (0,0,0), Rect((SIZE[0]*15,30), Ssize))
+    Ssize = k.get_width(),k.get_height()
+    pygame.draw.rect(screen, (0,0,0), Rect((SIZE[0]*15,30), Ssize))
     screen.blit(k,(SIZE[0]*15,30))
 def Init():
     '''
     Initialize the borad, the screen and some values
     '''
-    global player,Anime,Borad,screen,Borad,loc,SIZE,n
+    global player,Anime,Borad,screen,Borad,loc,SIZE,n,Ssize,OnR
+    OnR = False
     n = 5
-    loc = False
+    loc = []
     Borad = InitialiseBorad(SIZE)
     screen = pygame.display.set_mode((SIZE[0]*50+50, SIZE[1]*50+150), 0, 32)
     screen.fill((0,0,0))
     player = 0
     Anime = 0
+    Ssize = (0,0)
 def Start():
     '''
     For the Start bottom
@@ -177,8 +193,8 @@ def Start():
     global Won
     global OnS
     global screen
-    pygame.draw.rect(screen, (0,0,0), Rect((0,0),(450,100)))
     if Won:
+        pygame.draw.rect(screen, (0,0,0), Rect((0,0),(SIZE[0]*50+100,100)))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.Font('American Typewriter Medium BT.ttf', 20)
         k = font.render('START',True,(0,0,0))
@@ -192,6 +208,31 @@ def Start():
         else:
             color = (255,255,0)
             OnS = False
+        pygame.draw.rect(screen, color, Rect(pos, size))
+        pygame.draw.rect(screen, (255,255,224), Rect(pos, size),2)
+        screen.blit(k,(SIZE[0]*50+45-sx-xGap,yGap))
+def Repent():
+    '''
+    For repent bottom
+    '''
+    global Won
+    global OnR
+    global screen
+    if not Won and loc != []:
+        pygame.draw.rect(screen, (0,0,0), Rect((0,0),(SIZE[0]*50+100,100)))
+        x, y = pygame.mouse.get_pos()
+        font = pygame.font.Font('American Typewriter Medium BT.ttf', 20)
+        k = font.render('REPENT',True,(0,0,0))
+        sx,sy = k.get_width(),k.get_height()
+        size = (sx+10,sy)
+        xGap,yGap = 10,20
+        pos = (SIZE[0]*50+40-sx-xGap,yGap)
+        if 0<=x-(SIZE[0]*50+40-sx-xGap)<=sx and 0<=y-yGap<=sy:
+            color = (238,238,0)
+            OnR = True
+        else:
+            color = (255,255,0)
+            OnR = False
         pygame.draw.rect(screen, color, Rect(pos, size))
         pygame.draw.rect(screen, (255,255,224), Rect(pos, size),2)
         screen.blit(k,(SIZE[0]*50+45-sx-xGap,yGap))
@@ -223,7 +264,7 @@ from pygame.locals import *
 from sys import exit
 import time
 import random
-SIZE = eval(input('Borad size:'))
+SIZE = 15,15
 Init()
 M=(0,0)
 Won = True
@@ -233,7 +274,9 @@ fps = FPS(time.time(),time.time(),0)
 fps_display = [False,True] 
 while True:
 #游戏主循环
+    pygame.draw.rect(screen, (0,0,0), Rect((0,0),(SIZE[0]*50+100,100)))
     Start()
+    Repent()
     if not Won and M and Borad[M]<=0:
         Borad[M] = 0
     M = GetMouse(Borad)
@@ -252,18 +295,22 @@ while True:
             #点击Start后初始化
         if event.type == MOUSEBUTTONDOWN and M and Borad[M]<=0 and not Won:
             Borad[M] = player
+            loc.append(M)
             player = int(2/player)
             #点击空位后放下棋子
+        if event.type == MOUSEBUTTONDOWN and OnR and not Won and loc:
+            OnR = False
+            Borad[loc[-1]] = 0
+            del loc[-1]
+            player = int(2/player)
         if event.type == KEYDOWN and event.key == K_DOWN:
             fps_display.reverse()
             #点下键后显示/隐藏fps
     ShoeState()#展示回合状态
-    screen = DisplyBorad(Borad)
-    if not Won:
-        loc = M
+    DisplyBorad(Borad)
     if player and loc:
         #胜利判定
-        a = CheckWin(Borad,loc)
+        a = CheckWin(Borad,loc[-1])
         if a=='R':
             ShowWin((255,165,0))
         elif a=='B':
